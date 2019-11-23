@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
+import logging
+
 from oscilloscope import Oscilloscope
 
 
 def main():
-    scope = Oscilloscope('192.168.2.3')
+    logging.basicConfig(level=logging.INFO)
+    scope = Oscilloscope('TCPIP::192.168.2.3::5025::SOCKET')
+    print(scope.query('ALL_STATUS?'))
     scope.close()
 
 
