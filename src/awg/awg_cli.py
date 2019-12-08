@@ -7,7 +7,7 @@ from signal_generator import SignalGenerator
 def main():
     logging.basicConfig(level=logging.INFO)
     awg = SignalGenerator('USB0::62700::4355::SDG1XCAQ3R3321::0::INSTR')
-    print(awg.query('ALL_STATUS?'))
+    awg.write('C1:BSWV FRQ,2000')
     awg.close()
 
 
