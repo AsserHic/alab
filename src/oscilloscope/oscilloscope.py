@@ -28,13 +28,13 @@ class Oscilloscope:
 
     def __init__(self, addr):
         self.addr = addr
-        resources = visa.ResourceManager()
+        resources = visa.ResourceManager('@py')
         LOGGER.info('Connecting %s.', addr)
         self.connection = resources.open_resource(addr,
                                                   write_termination='\n',
                                                   read_termination='\n')
-        self.connection.timeout = 10000
-        self.connection.query_delay = 10
+        self.connection.timeout = 5000
+        self.connection.query_delay = 1
 
     def write(self, command, block=True):
         self.connection.write(command)
@@ -68,7 +68,7 @@ class Oscilloscope:
 
     def sample_rate(self, channel):
         rate = self.query(f"SAMPLE_RATE? C{channel}")
-        rate = int(float(rate[5:-4]))
+        rate = int(float(rate[5:-6]))
         return rate
 
     def save_measures(self, channel, filename):
@@ -76,11 +76,11 @@ class Oscilloscope:
         LOGGER.info('Sample rate is %s.', rate)
 
         self.write('WAVEFORM_SETUP SP,4,NP,100,FP,0')
-        print(self.query('TEMPLATE?'))
-        #self.connection.write(f"C{channel}: WAVEFORM? DAT2")
-        #response = self.connection.read_bytes(1000, break_on_termchar='\0\0')
-        #response = self.connection.read_raw()
-        response = self.query("C1: WF? ALL")
+        print(self.connection.query('TEMPLATE?'))
+        self.connection.write(f"C{channel}: WAVEFORM? DAT2")
+        #response = self.connection.read_bytes(1000, break_on_termchar='\0')
+        response = self.connection.read_raw()
+        #response = self.query("C1: WF? ALL")
 
         print(response)
         if not response.startswith(f"C{channel}: WF ALL"):
