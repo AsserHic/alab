@@ -1,11 +1,16 @@
-#!/usr/bin/env python3
+import logging
+
 import visa
 
+LOGGER = logging.getLogger(__file__)
 
-def main():
+
+def list_devices():
     rm = visa.ResourceManager('@py')
-    print(rm.list_resources())
+
+    return rm.list_resources()
 
 
-if __name__ == '__main__':
-    main()
+def run():
+    for i, dev in enumerate(list_devices()):
+        LOGGER.info("%s: %s", i, dev)
