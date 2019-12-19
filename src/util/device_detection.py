@@ -1,3 +1,4 @@
+import argparse
 import logging
 
 import visa
@@ -11,6 +12,6 @@ def list_devices():
     return rm.list_resources()
 
 
-def run():
+def run(args: argparse.Namespace):
     for i, dev in enumerate(list_devices()):
         LOGGER.info("%s: %s", i, dev)

@@ -16,11 +16,14 @@ def main():
     parser.add_argument('command',
                         choices=COMMANDS.keys(),
                         help='Mode of operation')
+    parser.add_argument('--dry',
+                        action='store_true',
+                        help='Dry run without external devices')
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)
 
-    COMMANDS[args.command]()
+    COMMANDS[args.command](args)
 
 
 if __name__ == '__main__':
