@@ -42,7 +42,7 @@ class Piano:
 
     @octave.setter
     def octave(self, value: int):
-        if value < 0 or value > 5:
+        if value < 0 or value > 9:
             raise ValueError(f"Invalid octave: {value}.")
         if value != self._octave:
             self._octave = value
@@ -52,6 +52,8 @@ class Piano:
         self._awg.close()
 
     def play_note(self, note: str):
+        if note is None:
+            return
         freq = self.note_frequency(note, self._octave)
         LOGGER.info('Play %s%s (%s Hz).', note, self._octave, freq)
         self._awg.frequency = freq
@@ -71,7 +73,7 @@ def run(args: argparse.Namespace):
     piano = Piano(addr)
 
     for key in NOTE_KEYS:
-        keyboard.on_press_key(key, lambda event: piano.play_note(NOTE_KEYS[event.name]), suppress=True)
+        keyboard.on_press_key(key, lambda event: piano.play_note(NOTE_KEYS.get(event.name)), suppress=True)
 
     for key in range(0, 9):
         keyboard.on_press_key(str(key), lambda event: _set_octave(piano, event.name), suppress=True)
