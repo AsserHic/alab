@@ -9,9 +9,12 @@ LOGGER = logging.getLogger(__file__)
 
 NOTE_OFFSET = {
     'c': -9,
+    'c#': -8,
     'd': -7,
+    'd#': -6,
     'e': -5,
     'f': -4,
+    'f#': -3,
     'g': -2,
     'g#': -1,
     'a': 0,
@@ -20,11 +23,16 @@ NOTE_OFFSET = {
 }
 NOTE_KEYS = {
     'a': 'c',
+    'w': 'c#',
     's': 'd',
+    'e': 'd#',
     'd': 'e',
     'f': 'f',
+    'r': 'f#',
     'g': 'g',
+    't': 'g#',
     'h': 'a',
+    'y': 'a#',
     'j': 'b',
 }
 
