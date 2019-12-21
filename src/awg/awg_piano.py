@@ -1,6 +1,7 @@
 import argparse
 import keyboard
 import logging
+import sys
 import time
 
 from awg.signal_generator import SignalGenerator
@@ -21,6 +22,7 @@ NOTE_OFFSET = {
     'a#': 1,
     'b': 2,
 }
+
 NOTE_KEYS = {
     'a': 'c',
     'w': 'c#',
@@ -36,6 +38,12 @@ NOTE_KEYS = {
     'j': 'b',
 }
 
+WAVE_FORMS = [
+    'SINE',
+    'SQUARE',
+    'RAMP',
+    'ARB 52',
+]
 
 class Piano:
 
@@ -44,6 +52,12 @@ class Piano:
         self._awg.write("C1:BASIC_WAVE AMP,0.9")
         self._awg.set_output(1, True)
         self._octave = 4
+        self._wave_index = 0
+
+    def next_wave(self, direction: bool=True):
+        incr = 1 if direction else -1
+        self._wave_index = (self._wave_index + incr) % len(WAVE_FORMS)
+        self._awg.set_waveform(1, WAVE_FORMS[self._wave_index])
 
     @property
     def octave(self):
@@ -80,6 +94,9 @@ class Piano:
 def _set_octave(piano, key):
     piano.octave = int(key)
 
+def _stop(piano):
+    piano.close()
+    keyboard.send('enter')
 
 def run(args: argparse.Namespace):
     piano = Piano(args.config['awg'].get('address'))
@@ -90,9 +107,12 @@ def run(args: argparse.Namespace):
     for key in range(0, 10):
         keyboard.on_press_key(str(key), lambda event: _set_octave(piano, event.name), suppress=True)
 
-    keyboard.on_press_key('c', lambda event: piano.close(), suppress=True)
+    keyboard.on_press_key('c', lambda event: _stop(piano), suppress=True)
+    keyboard.on_press_key('n', lambda event: piano.next_wave(False), suppress=True)
+    keyboard.on_press_key('m', lambda event: piano.next_wave(True), suppress=True)
 
     LOGGER.info('Ready!')
     while piano.is_alive():
         time.sleep(1)
+        line = sys.stdin.readline()
     LOGGER.info('Bye!')

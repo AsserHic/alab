@@ -37,6 +37,15 @@ class SignalGenerator:
         _validate_channel(channel)
         self.write(f"C{channel}:OUTPUT {'ON' if status else 'OFF'}")
 
+    def set_waveform(self, channel, waveform: str):
+        LOGGER.info('Waveform selection: %s.', waveform)
+        if waveform.startswith('ARB '):
+            cmd = f"C{channel}:ARWV INDEX,{waveform[4:]} ;BASIC_WAVE WVTP,ARB"
+        else:
+            cmd = f"C{channel}:BASIC_WAVE WVTP,{waveform}"
+        self.write(cmd)
+
+
     @property
     def frequency(self):
         return self._frequency
