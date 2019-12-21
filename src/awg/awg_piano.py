@@ -34,6 +34,7 @@ class Piano:
     def __init__(self, addr):
         self._awg = SignalGenerator(addr)
         self._awg.write("C1:BASIC_WAVE AMP,0.9")
+        self._awg.set_output(1, True)
         self._octave = 4
 
     @property
@@ -50,6 +51,10 @@ class Piano:
 
     def close(self):
         self._awg.close()
+        self._awg = None
+
+    def is_alive(self):
+        return self._awg is not None
 
     def play_note(self, note: str):
         if note is None:
@@ -69,16 +74,17 @@ def _set_octave(piano, key):
 
 
 def run(args: argparse.Namespace):
-    addr = None if args.dry else 'USB0::62700::4355::SDG1XCAQ3R3321::0::INSTR'
-    piano = Piano(addr)
+    piano = Piano(args.config['awg'].get('address'))
 
     for key in NOTE_KEYS:
         keyboard.on_press_key(key, lambda event: piano.play_note(NOTE_KEYS.get(event.name)), suppress=True)
 
-    for key in range(0, 9):
+    for key in range(0, 10):
         keyboard.on_press_key(str(key), lambda event: _set_octave(piano, event.name), suppress=True)
 
-    while True:
-        time.sleep(1)
+    keyboard.on_press_key('c', lambda event: piano.close(), suppress=True)
 
-    piano.close()
+    LOGGER.info('Ready!')
+    while piano.is_alive():
+        time.sleep(1)
+    LOGGER.info('Bye!')

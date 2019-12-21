@@ -2,7 +2,6 @@ import logging
 
 import visa
 
-
 LOGGER = logging.getLogger(__file__)
 
 
@@ -34,6 +33,10 @@ class SignalGenerator:
         response = self._connection.query(command)
         return response
 
+    def set_output(self, channel, status):
+        _validate_channel(channel)
+        self.write(f"C{channel}:OUTPUT {'ON' if status else 'OFF'}")
+
     @property
     def frequency(self):
         return self._frequency
@@ -46,4 +49,13 @@ class SignalGenerator:
         self.write(f"C1:BASIC_WAVE FRQ,{freq}")
 
     def close(self):
-        self._connection.close()
+        if self._connection:
+            self.set_output(1, False)
+            self.set_output(2, False)
+            self._connection.close()
+
+
+def _validate_channel(channel: int):
+    if channel is not 1 and \
+       channel is not 2:
+        raise ValueError(f"Invalid channel: {channel}.")
