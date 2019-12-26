@@ -45,7 +45,6 @@ class SignalGenerator:
             cmd = f"C{channel}:BASIC_WAVE WVTP,{waveform}"
         self.write(cmd)
 
-
     @property
     def frequency(self):
         return self._frequency

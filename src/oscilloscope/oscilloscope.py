@@ -27,19 +27,26 @@ class Oscilloscope:
 
     def __init__(self, addr):
         self.addr = addr
-        resources = visa.ResourceManager('@py')
-        LOGGER.info('Connecting %s.', addr)
-        self.connection = resources.open_resource(addr,
-                                                  write_termination='\n',
-                                                  read_termination='\n')
-        self.connection.timeout = 5000
-        self.connection.query_delay = 1
+        if addr:
+            resources = visa.ResourceManager('@py')
+            LOGGER.info('Connecting %s.', addr)
+            self.connection = resources.open_resource(addr,
+                                                      write_termination='\n',
+                                                      read_termination='\n')
+            self.connection.timeout = 5000
+            self.connection.query_delay = 1
+        else:
+            LOGGER.info('Oscilloscope in dry-run mode!')
+            self._connection = None
 
     def write(self, command, block=True):
-        self.connection.write(command)
-        self._check_for_errors()
-        if block:
-            self._wait_until_ready()
+        if self._connection:
+            self.connection.write(command)
+            self._check_for_errors()
+            if block:
+                self._wait_until_ready()
+        else:
+            LOGGER.info("WRITE: %s", command)
 
     def query(self, command):
         response = self.connection.query(command)
@@ -47,8 +54,9 @@ class Oscilloscope:
         return response
 
     def close(self):
-        self.connection.close()
-        LOGGER.info('Connection closed for: %s', self.addr)
+        if self._connection:
+            self.connection.close()
+            LOGGER.info('Connection closed for: %s', self.addr)
 
     def _wait_until_ready(self):
         self.connection.write('*OPC?')

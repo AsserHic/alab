@@ -4,7 +4,7 @@ import logging
 import sys
 import time
 
-from awg.signal_generator import SignalGenerator
+from awg import SignalGenerator
 
 LOGGER = logging.getLogger(__file__)
 
@@ -45,6 +45,7 @@ WAVE_FORMS = [
     'ARB 52',
 ]
 
+
 class Piano:
 
     def __init__(self, addr):
@@ -54,7 +55,7 @@ class Piano:
         self._octave = 4
         self._wave_index = 0
 
-    def next_wave(self, direction: bool=True):
+    def next_wave(self, direction: bool = True):
         incr = 1 if direction else -1
         self._wave_index = (self._wave_index + incr) % len(WAVE_FORMS)
         self._awg.set_waveform(1, WAVE_FORMS[self._wave_index])
@@ -94,9 +95,11 @@ class Piano:
 def _set_octave(piano, key):
     piano.octave = int(key)
 
+
 def _stop(piano):
     piano.close()
     keyboard.send('enter')
+
 
 def run(args: argparse.Namespace):
     piano = Piano(args.config['awg'].get('address'))
@@ -114,5 +117,5 @@ def run(args: argparse.Namespace):
     LOGGER.info('Ready!')
     while piano.is_alive():
         time.sleep(1)
-        line = sys.stdin.readline()
+        sys.stdin.readline()  # Clear buffer
     LOGGER.info('Bye!')

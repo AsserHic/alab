@@ -4,11 +4,13 @@ import configparser
 import logging
 
 import awg.awg_piano
+import oscilloscope.xy_demo
 import util.device_detection
 
 COMMANDS = {
-    'devices': util.device_detection.run,
-    'piano': awg.awg_piano.run,
+    'devices': util.device_detection,
+    'piano': awg.awg_piano,
+    'xy-demo': oscilloscope.xy_demo,
 }
 
 
@@ -34,8 +36,9 @@ def main():
 
     if args.dry:
         config.remove_option('awg', 'address')
+        config.remove_option('oscilloscope', 'address')
 
-    COMMANDS[args.command](args)
+    COMMANDS[args.command].run(args)
 
 
 if __name__ == '__main__':
