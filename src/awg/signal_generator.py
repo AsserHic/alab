@@ -16,12 +16,11 @@ class SignalGenerator:
                                                        read_termination='\x00\n')
             self._connection.timeout = 4000
             self._connection.query_delay = 1.0
-            LOGGER.info('Connected to %s.', self.query('*IDN?'))
         else:
             LOGGER.info('Signal generator in dry-run mode!')
             self._connection = None
 
-        self._frequency = -1.0
+        self._frequency = [-1.0, -1.0]
 
     def write(self, command):
         if self._connection:
@@ -38,6 +37,7 @@ class SignalGenerator:
         self.write(f"C{channel}:OUTPUT {'ON' if status else 'OFF'}")
 
     def set_waveform(self, channel, waveform: str):
+        _validate_channel(channel)
         LOGGER.info('Waveform selection: %s.', waveform)
         if waveform.startswith('ARB '):
             cmd = f"C{channel}:ARWV INDEX,{waveform[4:]} ;BASIC_WAVE WVTP,ARB"
@@ -45,16 +45,14 @@ class SignalGenerator:
             cmd = f"C{channel}:BASIC_WAVE WVTP,{waveform}"
         self.write(cmd)
 
-    @property
-    def frequency(self):
-        return self._frequency
+    def frequency(self, channel):
+        return self._frequency[channel - 1]
 
-    @frequency.setter
-    def frequency(self, freq):
-        if self._frequency == freq:
+    def frequency(self, freq, channel):
+        if self._frequency[channel - 1] == freq:
             return
-        self._frequency = freq
-        self.write(f"C1:BASIC_WAVE FRQ,{freq}")
+        self._frequency[channel - 1] = freq
+        self.write(f"C{channel}:BASIC_WAVE FRQ,{freq}")
 
     def close(self):
         if self._connection:

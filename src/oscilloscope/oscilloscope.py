@@ -30,18 +30,18 @@ class Oscilloscope:
         if addr:
             resources = visa.ResourceManager('@py')
             LOGGER.info('Connecting %s.', addr)
-            self.connection = resources.open_resource(addr,
-                                                      write_termination='\n',
-                                                      read_termination='\n')
-            self.connection.timeout = 5000
-            self.connection.query_delay = 1
+            self._connection = resources.open_resource(addr,
+                                                       write_termination='\n',
+                                                       read_termination='\n')
+            self._connection.timeout = 5000
+            self._connection.query_delay = 1
         else:
             LOGGER.info('Oscilloscope in dry-run mode!')
             self._connection = None
 
     def write(self, command, block=True):
         if self._connection:
-            self.connection.write(command)
+            self._connection.write(command)
             self._check_for_errors()
             if block:
                 self._wait_until_ready()
@@ -49,20 +49,20 @@ class Oscilloscope:
             LOGGER.info("WRITE: %s", command)
 
     def query(self, command):
-        response = self.connection.query(command)
+        response = self._connection.query(command)
         self._check_for_errors()
         return response
 
     def close(self):
         if self._connection:
-            self.connection.close()
+            self._connection.close()
             LOGGER.info('Connection closed for: %s', self.addr)
 
     def _wait_until_ready(self):
-        self.connection.write('*OPC?')
+        self._connection.write('*OPC?')
 
     def _check_for_errors(self):
-        status = self.connection.query('CMR?')
+        status = self._connection.query('CMR?')
         error = ERROR_STATUS.get(status)
         if error:
             raise IOError(error)

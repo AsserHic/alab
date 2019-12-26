@@ -84,7 +84,7 @@ class Piano:
             return
         freq = self.note_frequency(note, self._octave)
         LOGGER.info('Play %s%s (%s Hz).', note, self._octave, freq)
-        self._awg.frequency = freq
+        self._awg.frequency(freq, 1)
 
     @staticmethod
     def note_frequency(note, octave):
