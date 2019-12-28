@@ -12,9 +12,10 @@ class SignalGenerator:
             LOGGER.info('Connecting %s.', addr)
             resources = visa.ResourceManager()
             self._connection = resources.open_resource(addr,
+                                                       chunk_size=40 * 1024,
                                                        write_termination='\n',
-                                                       read_termination='\x00\n')
-            self._connection.timeout = 4000
+                                                       read_termination='\n')
+            self._connection.timeout = 5000
             self._connection.query_delay = 1.0
         else:
             LOGGER.info('Signal generator in dry-run mode!')
@@ -40,10 +41,9 @@ class SignalGenerator:
         _validate_channel(channel)
         LOGGER.info('Waveform selection: %s.', waveform)
         if waveform.startswith('ARB '):
-            cmd = f"C{channel}:ARWV INDEX,{waveform[4:]} ;BASIC_WAVE WVTP,ARB"
-        else:
-            cmd = f"C{channel}:BASIC_WAVE WVTP,{waveform}"
-        self.write(cmd)
+            self.write(f"C{channel}:ARBWAVE NAME,{waveform[4:]}")
+            waveform = 'ARB'
+        self.write(f"C{channel}:BASIC_WAVE WVTP,{waveform}")
 
     def frequency(self, channel):
         return self._frequency[channel - 1]

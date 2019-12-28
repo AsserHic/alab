@@ -42,7 +42,9 @@ WAVE_FORMS = [
     'SINE',
     'SQUARE',
     'RAMP',
-    'ARB 52',
+    'ARB ExpFal',
+    'ARB ECG15',
+    'ARB M100',
 ]
 
 
