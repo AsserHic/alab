@@ -42,9 +42,18 @@ WAVE_FORMS = [
     'SINE',
     'SQUARE',
     'RAMP',
-    'ARB ExpFal',
-    'ARB ECG15',
-    'ARB M100',
+    'ARB 2',  # StairUD
+    'ARB 5',  # Trapezia
+    'ARB 14',  # X^2
+    'ARB 16',  # Sinc
+    'ARB 17',  # Gaussian
+    'ARB 18',  # Dlorentz
+    'ARB 21',  # Gauspuls
+    'ARB 22',  # Gmonopuls
+    'ARB 24',  # Cardiac
+    'ARB 26',  # Chirp
+    'ARB 27',  # TwoTone
+    'ARB 28',  # SNR
 ]
 
 
@@ -86,7 +95,7 @@ class Piano:
             return
         freq = self.note_frequency(note, self._octave)
         LOGGER.info('Play %s%s (%s Hz).', note, self._octave, freq)
-        self._awg.frequency(freq, 1)
+        self._awg.set_frequency(freq, 1)
 
     @staticmethod
     def note_frequency(note, octave):
@@ -95,7 +104,10 @@ class Piano:
 
 
 def _set_octave(piano, key):
-    piano.octave = int(key)
+    try:
+        piano.octave = int(key)
+    except ValueError:
+        LOGGER.warning("Invalid octave: %s.", key)
 
 
 def _stop(piano):

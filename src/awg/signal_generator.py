@@ -41,14 +41,14 @@ class SignalGenerator:
         _validate_channel(channel)
         LOGGER.info('Waveform selection: %s.', waveform)
         if waveform.startswith('ARB '):
-            self.write(f"C{channel}:ARBWAVE NAME,{waveform[4:]}")
+            self.write(f"C{channel}:ARWV INDEX,{waveform[4:]}")
             waveform = 'ARB'
         self.write(f"C{channel}:BASIC_WAVE WVTP,{waveform}")
 
-    def frequency(self, channel):
+    def get_frequency(self, channel):
         return self._frequency[channel - 1]
 
-    def frequency(self, freq, channel):
+    def set_frequency(self, freq, channel):
         if self._frequency[channel - 1] == freq:
             return
         self._frequency[channel - 1] = freq

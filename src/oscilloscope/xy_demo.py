@@ -29,10 +29,10 @@ def _scope_init(addr: str) -> Oscilloscope:
     return scope
 
 
-def _sine(awg, ratio, offset = 0):
+def _sine(awg, ratio, offset=0):
     f = 100000
-    awg.frequency(f, 1)
-    awg.frequency(f * ratio + offset, 2)
+    awg.set_frequency(f, 1)
+    awg.set_frequency(f * ratio + offset, 2)
 
 
 def run(args: argparse.Namespace):
