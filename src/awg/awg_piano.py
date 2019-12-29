@@ -94,8 +94,14 @@ class Piano:
         if note is None:
             return
         freq = self.note_frequency(note, self._octave)
-        LOGGER.info('Play %s%s (%s Hz).', note, self._octave, freq)
-        self._awg.set_frequency(freq, 1)
+        if freq != self._awg.get_frequency(1):
+            LOGGER.info('Play %s%s (%s Hz).', note, self._octave, freq)
+            self._awg.set_frequency(freq, 1)
+
+    def release_note(self, note: str):
+        if note is None:
+            return
+        self._awg.set_frequency(0, 1)
 
     @staticmethod
     def note_frequency(note, octave):
@@ -120,6 +126,7 @@ def run(args: argparse.Namespace):
 
     for key in NOTE_KEYS:
         keyboard.on_press_key(key, lambda event: piano.play_note(NOTE_KEYS.get(event.name)), suppress=True)
+        keyboard.on_release_key(key, lambda event: piano.release_note(NOTE_KEYS.get(event.name)), suppress=True)
 
     for key in range(0, 10):
         keyboard.on_press_key(str(key), lambda event: _set_octave(piano, event.name), suppress=True)
