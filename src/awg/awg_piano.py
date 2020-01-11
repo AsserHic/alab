@@ -61,15 +61,18 @@ class Piano:
 
     def __init__(self, addr):
         self._awg = SignalGenerator(addr)
-        self._awg.write("C1:BASIC_WAVE AMP,0.9")
-        self._awg.set_output(1, True)
+        for channel in [1, 2]:
+            self._awg.write(f"C{channel}:BASIC_WAVE AMP,0.9,FRQ,0HZ")
+            self._awg.set_output(channel, True)
         self._octave = 4
         self._wave_index = 0
+        self._channels = [None, None]
 
     def next_wave(self, direction: bool = True):
         incr = 1 if direction else -1
         self._wave_index = (self._wave_index + incr) % len(WAVE_FORMS)
-        self._awg.set_waveform(1, WAVE_FORMS[self._wave_index])
+        for channel in [1, 2]:
+            self._awg.set_waveform(channel, WAVE_FORMS[self._wave_index])
 
     @property
     def octave(self):
@@ -90,18 +93,33 @@ class Piano:
     def is_alive(self):
         return self._awg is not None
 
+    def _get_channel(self, note: str):
+        channel = 0
+        for c, note_active in enumerate(self._channels):
+            if note_active == note:
+                return c + 1
+            if note_active is None:
+                channel = c
+        return channel + 1
+
     def play_note(self, note: str):
         if note is None:
             return
         freq = self.note_frequency(note, self._octave)
+        channel = self._get_channel(note)
         if freq != self._awg.get_frequency(1):
-            LOGGER.info('Play %s%s (%s Hz).', note, self._octave, freq)
-            self._awg.set_frequency(freq, 1)
+            LOGGER.info('Play %s%s (%s Hz) on channel %s.',
+                        note, self._octave, freq, channel)
+            self._channels[channel - 1] = note
+            self._awg.set_frequency(freq, channel)
 
     def release_note(self, note: str):
         if note is None:
             return
-        self._awg.set_frequency(0, 1)
+        channel = self._get_channel(note)
+        # LOGGER.info('Release channel %s.', channel)
+        self._channels[channel - 1] = None
+        self._awg.set_frequency(0, channel)
 
     @staticmethod
     def note_frequency(note, octave):
