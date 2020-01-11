@@ -107,7 +107,7 @@ class Piano:
             return
         freq = self.note_frequency(note, self._octave)
         channel = self._get_channel(note)
-        if freq != self._awg.get_frequency(1):
+        if freq != self._awg.get_frequency(channel):
             LOGGER.info('Play %s%s (%s Hz) on channel %s.',
                         note, self._octave, freq, channel)
             self._channels[channel - 1] = note

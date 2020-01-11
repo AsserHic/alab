@@ -36,17 +36,23 @@ def _sine(awg, ratio, offset=0):
 
 
 def run(args: argparse.Namespace):
+    DELAY = 2
     scope = _scope_init(args.config['oscilloscope'].get('address'))
     awg = _awg_init(args.config['awg'].get('address'))
 
+    LOGGER.info("Start demo!")
+
     for ratio in [1, 2, 3, 4, 5, 4, 3, 2, 1, 0.5]:
         _sine(awg, ratio, 1)
-        time.sleep(1)
+        time.sleep(DELAY)
+        _sine(awg, ratio, -1)
+        time.sleep(DELAY)
 
     for ratio in [1.1, 1.2, 1.5, 1.6, 2, 4]:
-        _sine(awg, ratio)
-        time.sleep(1)
+        _sine(awg, ratio, 0.01)
+        time.sleep(DELAY)
 
+    LOGGER.info("The end!")
     sys.stdin.readline()  # Wait enter
 
     awg.close()
