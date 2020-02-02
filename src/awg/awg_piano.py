@@ -59,7 +59,7 @@ WAVE_FORMS = [
 
 class Piano:
 
-    def __init__(self, addr):
+    def __init__(self, addr, a4_hz: float = 440):
         self._awg = SignalGenerator(addr)
         for channel in [1, 2]:
             self._awg.write(f"C{channel}:BASIC_WAVE AMP,0.9,FRQ,0HZ")
@@ -67,6 +67,7 @@ class Piano:
         self._octave = 4
         self._wave_index = 0
         self._channels = [None, None]
+        self._a4 = a4_hz
 
     def next_wave(self, direction: bool = True):
         incr = 1 if direction else -1
@@ -121,10 +122,9 @@ class Piano:
         self._channels[channel - 1] = None
         self._awg.set_frequency(0, channel)
 
-    @staticmethod
-    def note_frequency(note, octave):
+    def note_frequency(self, note, octave):
         n = NOTE_OFFSET[note] + (octave - 4) * 12
-        return round(440 * 1.059463094359 ** n, 2)
+        return round(self._a4 * 1.059463094359 ** n, 2)
 
 
 def _set_octave(piano, key):
