@@ -33,6 +33,14 @@ class SignalGenerator:
         response = self._connection.query(command)
         return response
 
+    def set_amplitude(self, channel, volts: float):
+        _validate_channel(channel)
+        self.write(f"C{channel}:BASIC_WAVE AMP,{volts}")
+
+    def set_offset(self, channel, volts: float):
+        _validate_channel(channel)
+        self.write(f"C{channel}:BASIC_WAVE OFST,{round(volts, 3)}")
+
     def set_output(self, channel, status):
         _validate_channel(channel)
         self.write(f"C{channel}:OUTPUT {'ON' if status else 'OFF'}")
