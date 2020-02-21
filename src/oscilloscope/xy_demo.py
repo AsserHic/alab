@@ -49,7 +49,7 @@ def _move_around(awg,
                  y0: float = 0,
                  xd: float = 0.02,
                  yd: float = 0.02,
-                 border: float = 0.3,
+                 border: float = 0.35,
                  cycles: int = 200):
     x = x0
     y = y0
@@ -66,7 +66,7 @@ def _move_around(awg,
 
 
 def run(args: argparse.Namespace):
-    DELAY = 2
+    DELAY = 2.0
     scope = _scope_init(args.config['oscilloscope'].get('address'))
     awg = _awg_init(args.config['awg'].get('address'))
 
@@ -86,7 +86,7 @@ def run(args: argparse.Namespace):
 
     for ratio in [1.1, 1.2, 1.5, 1.6, 2, 4]:
         _sine(awg, ratio, 0.01)
-        time.sleep(DELAY)
+        time.sleep(DELAY * 3.0)
 
     LOGGER.info("The end!")
     sys.stdin.readline()  # Wait enter
