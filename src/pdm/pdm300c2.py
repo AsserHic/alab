@@ -13,8 +13,22 @@ class PDM300:
             timeout=1)
 
     def read(self):
-        value = self._con.read()
-        return value
+        self._synchronize()
+        msg = self._con.read(8)
+        if not _checksum(msg):
+            return {}
+        return msg
 
     def close(self):
         self._con.close()
+
+    def _synchronize(self):
+        for trial in range(1, 20):
+            byte = self._con.read()
+            if byte == b'\xdc' and self._con.read() == b'\xba':
+                return
+        raise IOError("Cannot synchronize with the PDM 300 C2 UART.")
+
+def _checksum(msg):
+    csum = msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+msg[5]+msg[6]
+    return csum - msg[7] == 0
