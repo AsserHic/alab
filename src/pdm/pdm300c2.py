@@ -1,6 +1,19 @@
 import serial
 
 
+MODES = {
+    int('00010110', 2): ('DC V',),
+    int('00010101', 2): ('AC V',),
+    int('00011010', 2): ('uA',),
+    int('00011001', 2): ('mA',),
+    int('00011000', 2): ('A',),
+    int('00011100', 2): ('diode',),
+    int('00011011', 2): ('continuity',),
+    int('00000011', 2): ('squarewave',),
+    int('00011101', 2): ('resistance',),
+}
+
+
 class PDM300:
 
     def __init__(self, port):
@@ -16,8 +29,11 @@ class PDM300:
         self._synchronize()
         msg = self._con.read(8)
         if not _checksum(msg):
-            return {}
-        return msg
+            print(msg)
+        mode = MODES[msg[1]]
+        return {
+            'mode': mode[0],
+        }
 
     def close(self):
         self._con.close()
@@ -28,6 +44,7 @@ class PDM300:
             if byte == b'\xdc' and self._con.read() == b'\xba':
                 return
         raise IOError("Cannot synchronize with the PDM 300 C2 UART.")
+
 
 def _checksum(msg):
     csum = msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+msg[5]+msg[6]
