@@ -1,6 +1,7 @@
 import serial
 
 
+LABEL = 0
 MODES = {
     int('00010110', 2): ('DC V',),
     int('00010101', 2): ('AC V',),
@@ -29,11 +30,15 @@ class PDM300:
         self._synchronize()
         msg = self._con.read(8)
         if not _checksum(msg):
-            print(msg)
+            return {'error': 'Checksum mismatch'}
         mode = MODES[msg[1]]
-        return {
-            'mode': mode[0],
+        value = _as_int(msg[4], msg[5])
+
+        response = {
+            'mode': mode[LABEL],
+            'value': value,
         }
+        return response
 
     def close(self):
         self._con.close()
@@ -46,6 +51,11 @@ class PDM300:
         raise IOError("Cannot synchronize with the PDM 300 C2 UART.")
 
 
+def _as_int(byte1, byte2):
+    return byte1 << 8 | byte2
+
+
 def _checksum(msg):
-    csum = msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+msg[5]+msg[6]
-    return csum - msg[7] == 0
+    csum = msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+msg[5]
+    expected = _as_int(msg[6], msg[7])
+    return csum == expected
