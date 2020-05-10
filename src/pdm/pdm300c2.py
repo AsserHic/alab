@@ -1,7 +1,14 @@
 import serial
 
+MSG_MODE = 1
+MSG_RANGE = 2
+MSG_VALUE1 = 4
+MSG_VALUE2 = 5
+MSG_CHECK1 = 6
+MSG_CHECK2 = 7
 
 LABEL = 0
+
 MODES = {
     int('00010110', 2): ('DC V',),
     int('00010101', 2): ('AC V',),
@@ -12,6 +19,18 @@ MODES = {
     int('00011011', 2): ('continuity',),
     int('00000011', 2): ('squarewave',),
     int('00011101', 2): ('resistance',),
+}
+
+RANGES = {
+    int('00000000', 2): ('init', ),
+    int('00000001', 2): ('A', ),
+    int('00000010', 2): ('B', ),
+    int('00000100', 2): ('C', ),
+    int('00001000', 2): ('D', ),
+    int('00010000', 2): ('E', ),
+    int('00100000', 2): ('F', ),
+    int('01000000', 2): ('G', ),
+    int('10000000', 2): ('H', ),
 }
 
 
@@ -31,12 +50,14 @@ class PDM300:
         msg = self._con.read(8)
         if not _checksum(msg):
             return {'error': 'Checksum mismatch'}
-        mode = MODES[msg[1]]
-        value = _as_int(msg[4], msg[5])
+        mode = MODES[msg[MSG_MODE]]
+        rng = RANGES[msg[MSG_RANGE]]
+        value = _as_int(msg[MSG_VALUE1], msg[MSG_VALUE2])
 
         response = {
             'mode': mode[LABEL],
             'value': value,
+            'range': rng[LABEL],
         }
         return response
 
@@ -57,5 +78,5 @@ def _as_int(byte1, byte2):
 
 def _checksum(msg):
     csum = msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+msg[5]
-    expected = _as_int(msg[6], msg[7])
+    expected = _as_int(msg[MSG_CHECK1], msg[MSG_CHECK2])
     return csum == expected
