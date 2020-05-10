@@ -1,3 +1,8 @@
+# Parkside digital multimeter PDM 300 C2
+#
+# Special thanks for: https://github.com/benedikts-workshop/ParksideView
+# and https://www.mikrocontroller.net/articles/Multimeter_PDM-300-C2_Analyse
+
 import serial
 
 MSG_MODE = 1
@@ -14,24 +19,40 @@ UNIT = 1
 MODES = {
     int('00010110', 2): ('DC',         'V'),
     int('00010101', 2): ('AC',         'V'),
+    int('00011101', 2): ('resistance', 'Ohm'),
+    int('00011011', 2): ('continuity', 'Ohm'),
+    int('00011100', 2): ('diode',      'V'),
+    int('00000011', 2): ('squarewave', None),
     int('00011010', 2): ('uA',         'A'),
     int('00011001', 2): ('mA',         'A'),
     int('00011000', 2): ('A',          'A'),
-    int('00011100', 2): ('diode',      'Ohm'),
-    int('00011011', 2): ('continuity', 'Ohm'),
-    int('00000011', 2): ('squarewave', None),
-    int('00011101', 2): ('resistance', 'Ohm'),
 }
 
 RANGES = {
     int('00000000', 2): ('init', {}),
-    int('00000001', 2): ('A',    {'resistance': 10, 'continuity': 10}),
-    int('00000010', 2): ('B',    {'DC': 10000,            'resistance': 1}),
-    int('00000100', 2): ('C',    {'DC': 1000, 'AC': 1000, 'resistance': 0.1}),
-    int('00001000', 2): ('D',    {'DC': 100,  'AC': 100,  'resistance': 0.01}),
-    int('00010000', 2): ('E',    {'DC': 10,   'AC': 10,   'resistance': 0.001}),
-    int('00100000', 2): ('F',    {'DC': 1,    'AC': 1,    'resistance': 0.0001}),
-    int('01000000', 2): ('G',    {}),
+    int('00000001', 2): ('A',    {'resistance': 10,
+                                  'continuity': 10}),
+    int('00000010', 2): ('B',    {'DC':         10000,
+                                  'resistance': 1,
+                                  'uA':         10000000}),
+    int('00000100', 2): ('C',    {'DC':         1000,
+                                  'AC':         1000,
+                                  'resistance': 0.1,
+                                  'diode':      1000,
+                                  'uA':         1000000}),
+    int('00001000', 2): ('D',    {'DC':         100,
+                                  'AC':         100,
+                                  'resistance': 0.01,
+                                  'mA':         1000}),
+    int('00010000', 2): ('E',    {'DC':         10,
+                                  'AC':         10,
+                                  'resistance': 0.001,
+                                  'mA':         100}),
+    int('00100000', 2): ('F',    {'DC':         1,
+                                  'AC':         1,
+                                  'resistance': 0.0001,
+                                  'A':          1000}),
+    int('01000000', 2): ('G',    {'A':          100}),
     int('10000000', 2): ('H',    {}),
 }
 
