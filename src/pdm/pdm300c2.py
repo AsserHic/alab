@@ -53,7 +53,6 @@ RANGES = {
                                   'resistance': 0.0001,
                                   'A':          1000}),
     int('01000000', 2): ('G',    {'A':          100}),
-    int('10000000', 2): ('H',    {}),
 }
 
 
@@ -81,7 +80,7 @@ class PDM300:
         rng = RANGES[msg[MSG_RANGE]]
         response['range'] = rng[LABEL]
 
-        raw = _as_int(msg[MSG_VALUE1], msg[MSG_VALUE2])
+        raw = int.from_bytes(msg[MSG_VALUE1:MSG_VALUE2+1], byteorder='big', signed=True)
         response['raw'] = raw
 
         denominator = rng[FRACTION].get(mode[LABEL])
@@ -102,11 +101,7 @@ class PDM300:
         raise IOError("Cannot synchronize with the PDM 300 C2 UART.")
 
 
-def _as_int(byte1, byte2):
-    return byte1 << 8 | byte2
-
-
 def _checksum(msg):
     csum = msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+msg[5]
-    expected = _as_int(msg[MSG_CHECK1], msg[MSG_CHECK2])
+    expected = msg[MSG_CHECK1] << 8 | msg[MSG_CHECK2]
     return csum == expected
