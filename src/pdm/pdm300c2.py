@@ -7,12 +7,13 @@ MSG_VALUE2 = 5
 MSG_CHECK1 = 6
 MSG_CHECK2 = 7
 
+FRACTION = 1
 LABEL = 0
 UNIT = 1
 
 MODES = {
-    int('00010110', 2): ('DC V',       'V'),
-    int('00010101', 2): ('AC V',       'V'),
+    int('00010110', 2): ('DC',         'V'),
+    int('00010101', 2): ('AC',         'V'),
     int('00011010', 2): ('uA',         'A'),
     int('00011001', 2): ('mA',         'A'),
     int('00011000', 2): ('A',          'A'),
@@ -23,15 +24,15 @@ MODES = {
 }
 
 RANGES = {
-    int('00000000', 2): ('init', ),
-    int('00000001', 2): ('A', ),
-    int('00000010', 2): ('B', ),
-    int('00000100', 2): ('C', ),
-    int('00001000', 2): ('D', ),
-    int('00010000', 2): ('E', ),
-    int('00100000', 2): ('F', ),
-    int('01000000', 2): ('G', ),
-    int('10000000', 2): ('H', ),
+    int('00000000', 2): ('init', {}),
+    int('00000001', 2): ('A',    {}),
+    int('00000010', 2): ('B',    {'DC': 10000}),
+    int('00000100', 2): ('C',    {'DC': 1000}),
+    int('00001000', 2): ('D',    {'DC': 100}),
+    int('00010000', 2): ('E',    {'DC': 10}),
+    int('00100000', 2): ('F',    {'DC': 1}),
+    int('01000000', 2): ('G',    {}),
+    int('10000000', 2): ('H',    {}),
 }
 
 
@@ -57,12 +58,14 @@ class PDM300:
         if not mode[UNIT]:
             return {'mode': mode[LABEL]}
 
-        value = _as_int(msg[MSG_VALUE1], msg[MSG_VALUE2])
+        raw = _as_int(msg[MSG_VALUE1], msg[MSG_VALUE2])
+        value = raw / rng[FRACTION][mode[LABEL]]
 
         response = {
             'mode': mode[LABEL],
             'range': rng[LABEL],
             'unit': mode[UNIT],
+            'raw': raw,
             'value': value,
         }
         return response
