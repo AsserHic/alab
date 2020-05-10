@@ -8,17 +8,18 @@ MSG_CHECK1 = 6
 MSG_CHECK2 = 7
 
 LABEL = 0
+UNIT = 1
 
 MODES = {
-    int('00010110', 2): ('DC V',),
-    int('00010101', 2): ('AC V',),
-    int('00011010', 2): ('uA',),
-    int('00011001', 2): ('mA',),
-    int('00011000', 2): ('A',),
-    int('00011100', 2): ('diode',),
-    int('00011011', 2): ('continuity',),
-    int('00000011', 2): ('squarewave',),
-    int('00011101', 2): ('resistance',),
+    int('00010110', 2): ('DC V',       'V'),
+    int('00010101', 2): ('AC V',       'V'),
+    int('00011010', 2): ('uA',         'A'),
+    int('00011001', 2): ('mA',         'A'),
+    int('00011000', 2): ('A',          'A'),
+    int('00011100', 2): ('diode',      'Ohm'),
+    int('00011011', 2): ('continuity', 'Ohm'),
+    int('00000011', 2): ('squarewave', None),
+    int('00011101', 2): ('resistance', 'Ohm'),
 }
 
 RANGES = {
@@ -52,12 +53,17 @@ class PDM300:
             return {'error': 'Checksum mismatch'}
         mode = MODES[msg[MSG_MODE]]
         rng = RANGES[msg[MSG_RANGE]]
+
+        if not mode[UNIT]:
+            return {'mode': mode[LABEL]}
+
         value = _as_int(msg[MSG_VALUE1], msg[MSG_VALUE2])
 
         response = {
             'mode': mode[LABEL],
-            'value': value,
             'range': rng[LABEL],
+            'unit': mode[UNIT],
+            'value': value,
         }
         return response
 
