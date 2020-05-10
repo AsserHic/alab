@@ -39,6 +39,7 @@ def main():
     if args.dry:
         config.remove_option('awg', 'address')
         config.remove_option('oscilloscope', 'address')
+        config.remove_option('pdm', 'address')
 
     COMMANDS[args.command].run(args)
 

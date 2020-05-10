@@ -3,6 +3,7 @@
 # Special thanks for: https://github.com/benedikts-workshop/ParksideView
 # and https://www.mikrocontroller.net/articles/Multimeter_PDM-300-C2_Analyse
 
+import logging
 import serial
 
 MSG_MODE = 1
@@ -55,24 +56,36 @@ RANGES = {
     int('01000000', 2): ('G',    {'A':          100}),
 }
 
+LOGGER = logging.getLogger(__file__)
+
 
 class PDM300:
 
     def __init__(self, port):
-        self._con = serial.Serial(
-            port=port,
-            baudrate=2400,
-            parity=serial.PARITY_NONE,
-            stopbits=serial.STOPBITS_ONE,
-            bytesize=serial.EIGHTBITS,
-            timeout=1)
+        if port:
+            LOGGER.info("Connecting a multimeter at %s...", port)
+            self._con = serial.Serial(
+                port=port,
+                baudrate=2400,
+                parity=serial.PARITY_NONE,
+                stopbits=serial.STOPBITS_ONE,
+                bytesize=serial.EIGHTBITS,
+                timeout=1)
+        else:
+            LOGGER.info("Running multimeter in dry mode.")
+            self._con = None
 
     def read(self):
+        if not self._con:
+            return {'error': 'disconnected'}
+
         self._synchronize()
         msg = self._con.read(8)
         if not _checksum(msg):
             return {'error': 'Checksum mismatch'}
-        mode = MODES[msg[MSG_MODE]]
+        mode = MODES.get(msg[MSG_MODE])
+        if not mode:
+            return {'error': f'unexpected mode: {msg[MSG_MODE]}'}
         response = {'mode': mode[LABEL]}
         if not mode[UNIT]:
             return response
@@ -94,7 +107,9 @@ class PDM300:
         return response
 
     def close(self):
-        self._con.close()
+        if self._con:
+            self._con.close()
+            self._con = None
 
     def _synchronize(self):
         for trial in range(1, 20):
@@ -108,8 +123,10 @@ def _is_overflow(value, mode, rng):
     dist = abs(value)
     return (dist > 1999) or \
            (mode[LABEL] == 'DC' and rng[LABEL] == 'F' and dist > 300) or \
-           (mode[LABEL] == 'A'  and rng[LABEL] == 'G' and dist > 1000) or \
+           (mode[LABEL] == 'A' and rng[LABEL] == 'G' and dist > 1000) or \
+           (mode[LABEL] == 'resistance' and value < 0) or \
            (mode[LABEL] == 'continuity' and rng[LABEL] == 'C')
+
 
 def _checksum(msg):
     csum = msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+msg[5]
