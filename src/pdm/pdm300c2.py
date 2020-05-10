@@ -82,6 +82,9 @@ class PDM300:
 
         raw = int.from_bytes(msg[MSG_VALUE1:MSG_VALUE2+1], byteorder='big', signed=True)
         response['raw'] = raw
+        if _is_overflow(raw, mode, rng):
+            response['error'] = 'overflow'
+            return response
 
         denominator = rng[FRACTION].get(mode[LABEL])
         if not denominator:
@@ -100,6 +103,13 @@ class PDM300:
                 return
         raise IOError("Cannot synchronize with the PDM 300 C2 UART.")
 
+
+def _is_overflow(value, mode, rng):
+    dist = abs(value)
+    return (dist > 1999) or \
+           (mode[LABEL] == 'DC' and rng[LABEL] == 'F' and dist > 300) or \
+           (mode[LABEL] == 'A'  and rng[LABEL] == 'G' and dist > 1000) or \
+           (mode[LABEL] == 'continuity' and rng[LABEL] == 'C')
 
 def _checksum(msg):
     csum = msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+msg[5]
