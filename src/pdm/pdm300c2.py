@@ -25,12 +25,12 @@ MODES = {
 
 RANGES = {
     int('00000000', 2): ('init', {}),
-    int('00000001', 2): ('A',    {}),
-    int('00000010', 2): ('B',    {'DC': 10000}),
-    int('00000100', 2): ('C',    {'DC': 1000}),
-    int('00001000', 2): ('D',    {'DC': 100}),
-    int('00010000', 2): ('E',    {'DC': 10}),
-    int('00100000', 2): ('F',    {'DC': 1}),
+    int('00000001', 2): ('A',    {'resistance': 10, 'continuity': 10}),
+    int('00000010', 2): ('B',    {'DC': 10000,            'resistance': 1}),
+    int('00000100', 2): ('C',    {'DC': 1000, 'AC': 1000, 'resistance': 0.1}),
+    int('00001000', 2): ('D',    {'DC': 100,  'AC': 100,  'resistance': 0.01}),
+    int('00010000', 2): ('E',    {'DC': 10,   'AC': 10,   'resistance': 0.001}),
+    int('00100000', 2): ('F',    {'DC': 1,    'AC': 1,    'resistance': 0.0001}),
     int('01000000', 2): ('G',    {}),
     int('10000000', 2): ('H',    {}),
 }
@@ -53,21 +53,21 @@ class PDM300:
         if not _checksum(msg):
             return {'error': 'Checksum mismatch'}
         mode = MODES[msg[MSG_MODE]]
-        rng = RANGES[msg[MSG_RANGE]]
-
+        response = {'mode': mode[LABEL]}
         if not mode[UNIT]:
-            return {'mode': mode[LABEL]}
+            return response
+
+        rng = RANGES[msg[MSG_RANGE]]
+        response['range'] = rng[LABEL]
 
         raw = _as_int(msg[MSG_VALUE1], msg[MSG_VALUE2])
-        value = raw / rng[FRACTION][mode[LABEL]]
+        response['raw'] = raw
 
-        response = {
-            'mode': mode[LABEL],
-            'range': rng[LABEL],
-            'unit': mode[UNIT],
-            'raw': raw,
-            'value': value,
-        }
+        denominator = rng[FRACTION].get(mode[LABEL])
+        if not denominator:
+            return response
+        response['value'] = raw / denominator
+        response['unit'] = mode[UNIT]
         return response
 
     def close(self):
