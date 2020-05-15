@@ -21,7 +21,12 @@ def run(args: argparse.Namespace):
                 LOGGER.info("Multimeter mode is %s.", mode)
 
             if 'error' in new_value:
-                LOGGER.error(new_value['error'])
+                error = new_value['error']
+                if error == 'overflow':
+                    print(_format_for_human(error))
+                else:
+                    LOGGER.error(new_value['error'])
+                    break
             else:
                 print(_format_for_human(new_value))
             value = new_value
@@ -30,7 +35,7 @@ def run(args: argparse.Namespace):
 
 
 def _format_for_human(reading):
+    time = datetime.now().strftime('%H:%M:%S')
     if 'value' in reading:
-        time = datetime.now().strftime('%H:%M:%S')
         return f"{time}\t{reading['value']:g} {reading['unit']}"
-    return reading
+    return f"{time}\t{reading}"

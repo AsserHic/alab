@@ -81,7 +81,7 @@ class PDM300:
 
         self._synchronize()
         msg = self._con.read(8)
-        if not _checksum(msg):
+        if not self._checksum(msg):
             return {'error': 'Checksum mismatch'}
         mode = MODES.get(msg[MSG_MODE])
         if not mode:
@@ -118,6 +118,15 @@ class PDM300:
                 return
         raise IOError("Cannot synchronize with the PDM 300 C2 UART.")
 
+    def _checksum(self, msg) -> bool:
+        if len(msg) < 8:
+            self.close()
+            return False
+
+        csum = msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+msg[5]
+        expected = msg[MSG_CHECK1] << 8 | msg[MSG_CHECK2]
+        return csum == expected
+
 
 def _is_overflow(value, mode, rng):
     dist = abs(value)
@@ -126,9 +135,3 @@ def _is_overflow(value, mode, rng):
            (mode[LABEL] == 'A' and rng[LABEL] == 'G' and dist > 1000) or \
            (mode[LABEL] == 'resistance' and value < 0) or \
            (mode[LABEL] == 'continuity' and rng[LABEL] == 'C')
-
-
-def _checksum(msg):
-    csum = msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+msg[5]
-    expected = msg[MSG_CHECK1] << 8 | msg[MSG_CHECK2]
-    return csum == expected
