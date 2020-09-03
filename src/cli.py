@@ -6,12 +6,14 @@ import logging
 import awg.awg_piano
 import oscilloscope.xy_demo
 import pdm.reader
+import signal_art.svg_to_signal
 import util.device_detection
 
 COMMANDS = {
     'devices': util.device_detection,
     'pdm': pdm.reader,
     'piano': awg.awg_piano,
+    'svg2csv': signal_art.svg_to_signal,
     'xy-demo': oscilloscope.xy_demo,
 }
 
