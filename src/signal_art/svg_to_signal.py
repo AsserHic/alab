@@ -27,6 +27,7 @@ def path_to_df(path: Path):
         'x': x,
         'y': y,
     })
+    LOGGER.info('Obtained %s data points in total.', df.shape[0])
     df = df.apply(_normalize, axis=0)
     df.y = 1 - df.y
     return df
@@ -36,6 +37,11 @@ def _normalize(series):
     low = series.min()
     high = series.max()
     return (series - low) / (high - low)
+
+
+def _to_csv(data: pandas.DataFrame, filename: str):
+    LOGGER.info('Writing %s.', filename)
+    data.to_csv(filename, sep='\t')
 
 
 def run(args: argparse.Namespace):
@@ -52,3 +58,7 @@ def run(args: argparse.Namespace):
         df = path_to_df(parse_path(item.attrib['d']))
 
     show_xy_graph(df)
+
+    file_prefix = filename.split('.')[0]
+    _to_csv(df['x'], f"{file_prefix}_x.csv")
+    _to_csv(df['y'], f"{file_prefix}_y.csv")
