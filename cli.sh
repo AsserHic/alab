@@ -2,5 +2,5 @@
 
 set -e
 
-cd src
-sudo ./cli.py $@
+export PYTHONPATH=src
+python3 -m cli $@
