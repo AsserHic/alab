@@ -27,9 +27,10 @@ def path_to_df(path: Path):
         'x': x,
         'y': y,
     })
-    LOGGER.info('Obtained %s data points in total.', df.shape[0])
     df = df.apply(_normalize, axis=0)
     df.y = 1 - df.y
+    df.drop_duplicates(inplace=True)
+    LOGGER.info('Obtained %s data points in total.', df.shape[0])
     return df
 
 
@@ -41,8 +42,12 @@ def _normalize(series):
 
 def _to_csv(data: pandas.Series, filename: str):
     LOGGER.info('Writing %s.', filename)
-    data.rename('x', inplace=True)
-    data.to_csv(filename, sep='\t')
+    step = 0.00000001
+    df = pandas.DataFrame({
+        'Second': numpy.arange(0.0, step * len(data), step),
+        'Volt': data,
+    })
+    df.to_csv(filename, index=False)
 
 
 def run(args: argparse.Namespace):

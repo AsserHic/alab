@@ -29,6 +29,12 @@ class SignalGenerator:
         else:
             LOGGER.info("WRITE: %s", command)
 
+    def write_raw(self, command):
+        if self._connection:
+            self._connection.write_raw(command)
+        else:
+            LOGGER.info("WRITE <binary>")
+
     def query(self, command):
         response = self._connection.query(command)
         return response
