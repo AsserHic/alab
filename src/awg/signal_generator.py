@@ -33,6 +33,12 @@ class SignalGenerator:
         response = self._connection.query(command)
         return response
 
+    def identify(self):
+        return self.query('*IDN?')
+
+    def reset(self):
+        self.write('*RST')
+
     def set_amplitude(self, channel, volts: float):
         _validate_channel(channel)
         self.write(f"C{channel}:BASIC_WAVE AMP,{volts}")
