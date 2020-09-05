@@ -7,6 +7,7 @@ import awg.awg_piano
 import oscilloscope.xy_demo
 import pdm.reader
 import signal_art.svg_to_signal
+import signal_art.upload_csv
 import util.device_detection
 
 COMMANDS = {
@@ -14,6 +15,7 @@ COMMANDS = {
     'pdm': pdm.reader,
     'piano': awg.awg_piano,
     'svg2csv': signal_art.svg_to_signal,
+    'xy-upload': signal_art.upload_csv,
     'xy-demo': oscilloscope.xy_demo,
 }
 

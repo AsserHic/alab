@@ -39,8 +39,9 @@ def _normalize(series):
     return (series - low) / (high - low)
 
 
-def _to_csv(data: pandas.DataFrame, filename: str):
+def _to_csv(data: pandas.Series, filename: str):
     LOGGER.info('Writing %s.', filename)
+    data.rename('x', inplace=True)
     data.to_csv(filename, sep='\t')
 
 
@@ -57,7 +58,9 @@ def run(args: argparse.Namespace):
             break
         df = path_to_df(parse_path(item.attrib['d']))
 
-    show_xy_graph(df)
+    if not args.dry:
+        LOGGER.info('Rendering XY-graph to the display.')
+        show_xy_graph(df)
 
     file_prefix = filename.split('.')[0]
     _to_csv(df['x'], f"{file_prefix}_x.csv")
