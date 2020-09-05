@@ -11,10 +11,12 @@ def _upload_signal(filename: str):
     LOGGER.info("- %s", filename)
     df = pandas.read_csv(filename, sep="\t")
 
+    wave = ''
     for value in df.x:
-        value = hex(int(value * 65536))
-        value = value.zfill(4)
-        print(value)
+        value = '{:04x}'.format(int(value * 65536))
+        wave += value
+    wave = bytearray.fromhex(wave[:-1])
+    print(wave)  # https://siglentna.com/USA_website_2014/Documents/Program_Material/SDG_ProgrammingGuide_PG_E03B.pdf
 
 
 def run(args: argparse.Namespace):
