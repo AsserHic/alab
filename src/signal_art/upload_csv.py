@@ -34,9 +34,9 @@ def run(args: argparse.Namespace):
     signal_x = _read_signal(f"{file_prefix}_x.csv")
     # signal_y = _read_signal(f"{file_prefix}_y.csv")
 
-    awg.write("C1:WVDT WVNM,wave1,FREQ,2000.0,AMPL,4.0,OFST,0.0,PHASE,0.0,WAVEDATA,")
-    awg.write_raw(signal_x)
-    awg.write("C1:ARWV NAME,wave1")
+    msg = b"C1:WVDT WVNM,drawing_x,FREQ,2000.0,AMPL,4.0,OFST,0.0,PHASE,0.0,WAVEDATA," + signal_x
+    awg.write_raw(msg)
     time.sleep(3)
+    awg.write("C1:ARWV NAME,{file_prefix}_x")
 
     awg.close()
