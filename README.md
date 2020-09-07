@@ -25,6 +25,6 @@ I am reading the multimeter with the custom code that you can find from this lib
 Usage
 -----
 
-Device configurations can be found from `src/alab_config.ini`.
+Device configurations can be found from `alab_config.ini`.
 
 All routines are mapped to `./cli.sh` script and you can use its arguments to lauch them.
