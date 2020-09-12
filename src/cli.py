@@ -4,6 +4,7 @@ import configparser
 import logging
 
 import awg.awg_piano
+import logic_analyzer.logic_reader
 import oscilloscope.xy_demo
 import pdm.reader
 import signal_art.svg_to_signal
@@ -12,6 +13,7 @@ import util.device_detection
 
 COMMANDS = {
     'devices': util.device_detection,
+    'digital-read': logic_analyzer.logic_reader,
     'pdm': pdm.reader,
     'piano': awg.awg_piano,
     'svg2csv': signal_art.svg_to_signal,
