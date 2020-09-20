@@ -77,6 +77,5 @@ class SignalGenerator:
 
 
 def _validate_channel(channel: int):
-    if channel is not 1 and \
-       channel is not 2:
+    if channel != 1 and channel != 2:
         raise ValueError(f"Invalid channel: {channel}.")

@@ -153,7 +153,9 @@ def run(args: argparse.Namespace):
     keyboard.on_press_key('n', lambda event: piano.next_wave(False), suppress=True)
     keyboard.on_press_key('m', lambda event: piano.next_wave(True), suppress=True)
 
-    LOGGER.info('Ready!')
+    LOGGER.info('Keys: c = exit, n,m = select waveform, 0-9 = octave')
+    LOGGER.info(", ".join([f"{key}={note}" for key, note in NOTE_KEYS.items()]))
+
     while piano.is_alive():
         time.sleep(1)
         sys.stdin.readline()  # Clear buffer
