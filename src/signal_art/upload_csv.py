@@ -27,16 +27,20 @@ def run(args: argparse.Namespace):
 
     awg = SignalGenerator(args.config['awg'].get('address'))
     awg.reset()
-    print(awg.identify())
+    LOGGER.info(awg.identify())
     time.sleep(3)
 
     LOGGER.info("Uploading stereo signal: %s.", file_prefix)
     signal_x = _read_signal(f"{file_prefix}_x.csv")
-    # signal_y = _read_signal(f"{file_prefix}_y.csv")
+    signal_y = _read_signal(f"{file_prefix}_y.csv")
 
-    msg = b"C1:WVDT WVNM,drawing_x,FREQ,2000.0,AMPL,4.0,OFST,0.0,PHASE,0.0,WAVEDATA," + signal_x
+    msg = f"C1:WVDT WVNM,{file_prefix}_x,FREQ,2000.0,AMPL,4.0,OFST,0.0,PHASE,0.0,WAVEDATA,{signal_x}"
     awg.write_raw(msg)
-    time.sleep(3)
     awg.write("C1:ARWV NAME,{file_prefix}_x")
+    time.sleep(5)
+
+    msg = f"C2:WVDT WVNM,{file_prefix}_y,FREQ,2000.0,AMPL,4.0,OFST,0.0,PHASE,0.0,WAVEDATA,{signal_y}"
+    awg.write_raw(msg)
+    awg.write("C2:ARWV NAME,{file_prefix}_y")
 
     awg.close()

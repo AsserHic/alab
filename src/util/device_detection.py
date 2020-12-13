@@ -1,13 +1,13 @@
 import argparse
 import logging
 
-import visa
+import pyvisa
 
 LOGGER = logging.getLogger(__file__)
 
 
 def list_devices():
-    rm = visa.ResourceManager('@py')
+    rm = pyvisa.ResourceManager('@py')
 
     return rm.list_resources()
 
