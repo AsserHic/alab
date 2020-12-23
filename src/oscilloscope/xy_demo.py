@@ -28,6 +28,7 @@ def _awg_init(addr: str) -> SignalGenerator:
 def _scope_init(addr: str) -> Oscilloscope:
     scope = Oscilloscope(addr)
     scope.write("XY_DISPLAY ON; ACQUIRE_WAY SAMPLING")
+    time.sleep(0.2)
     scope.write("TIME_DIV 10US")
     scope.write("GRID_DISPLAY OFF")
     time.sleep(0.2)
