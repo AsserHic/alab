@@ -10,7 +10,7 @@ from awg import SignalGenerator
 LOGGER = logging.getLogger(__file__)
 
 
-def _read_signal(filename: str):
+def _read_signal(filename: str) -> bytes:
     LOGGER.info("- %s", filename)
     data = pandas.read_csv(filename)
 
@@ -18,8 +18,8 @@ def _read_signal(filename: str):
     for value in data.Volt:
         value = '{:04x}'.format(int(value * 65536))
         wave += value
-    wave = bytearray.fromhex(wave[:-1])
-    return bytes(wave)
+    wave_bytes = bytearray.fromhex(wave[:-1])
+    return bytes(wave_bytes)
 
 
 def run(args: argparse.Namespace):

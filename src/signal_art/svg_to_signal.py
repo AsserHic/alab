@@ -12,7 +12,7 @@ from .render_signal import show_xy_graph
 LOGGER = logging.getLogger(__file__)
 
 
-def path_to_df(path: Path):
+def path_to_df(path: Path) -> pandas.DataFrame:
     LOGGER.info('Processing a path...')
     x = []
     y = []
@@ -60,7 +60,7 @@ def populate_cli_parser(parser: argparse.ArgumentParser) -> None:
 def run(args: argparse.Namespace):
     xml = ET.parse(args.file)
     root = xml.getroot()
-    data = None
+    data = None  # type: pandas.DataFrame
     for item in root.iter('{http://www.w3.org/2000/svg}path'):
         if data:
             LOGGER.warning("%s contains more than one path! Using the first one.",

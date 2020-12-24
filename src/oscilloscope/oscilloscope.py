@@ -1,6 +1,6 @@
 import logging
 
-import visa
+import pyvisa
 
 
 LOGGER = logging.getLogger(__file__)
@@ -28,7 +28,7 @@ class Oscilloscope:
     def __init__(self, addr):
         self.addr = addr
         if addr:
-            resources = visa.ResourceManager('@py')
+            resources = pyvisa.ResourceManager('@py')
             LOGGER.info('Connecting %s.', addr)
             self._connection = resources.open_resource(addr,
                                                        write_termination='\n',

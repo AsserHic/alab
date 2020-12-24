@@ -1,6 +1,6 @@
 import logging
 
-import visa
+import pyvisa
 
 LOGGER = logging.getLogger(__file__)
 
@@ -10,7 +10,7 @@ class SignalGenerator:
     def __init__(self, addr):
         if addr:
             LOGGER.info('Connecting %s.', addr)
-            resources = visa.ResourceManager()
+            resources = pyvisa.ResourceManager()
             self._connection = resources.open_resource(addr, timeout=50000, chunk_size=24*1024*1024)
         else:
             LOGGER.info('Signal generator in dry-run mode!')

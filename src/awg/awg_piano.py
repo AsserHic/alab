@@ -2,6 +2,7 @@ import argparse
 import logging
 import sys
 import time
+from typing import List, Optional
 
 import keyboard
 
@@ -67,7 +68,7 @@ class Piano:
             self._awg.set_output(channel, True)
         self._octave = 4
         self._wave_index = 0
-        self._channels = [None, None]
+        self._channels = [None, None]  # type: List[Optional[str]]
         self._a4 = a4_hz
 
     def next_wave(self, direction: bool = True):
@@ -104,7 +105,7 @@ class Piano:
                 channel = chn
         return channel + 1
 
-    def play_note(self, note: str):
+    def play_note(self, note: Optional[str]):
         if note is None:
             return
         freq = self.note_frequency(note, self._octave)
@@ -115,7 +116,7 @@ class Piano:
             self._channels[channel - 1] = note
             self._awg.set_frequency(freq, channel)
 
-    def release_note(self, note: str):
+    def release_note(self, note: Optional[str]):
         if note is None:
             return
         channel = self._get_channel(note)
@@ -147,8 +148,8 @@ def run(args: argparse.Namespace):
         keyboard.on_press_key(key, lambda event: piano.play_note(NOTE_KEYS.get(event.name)), suppress=True)
         keyboard.on_release_key(key, lambda event: piano.release_note(NOTE_KEYS.get(event.name)), suppress=True)
 
-    for key in range(0, 10):
-        keyboard.on_press_key(str(key), lambda event: _set_octave(piano, event.name), suppress=True)
+    for key in map(str, range(0, 10)):
+        keyboard.on_press_key(key, lambda event: _set_octave(piano, event.name), suppress=True)
 
     keyboard.on_press_key('c', lambda event: _stop(piano), suppress=True)
     keyboard.on_press_key('n', lambda event: piano.next_wave(False), suppress=True)
