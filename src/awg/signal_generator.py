@@ -11,7 +11,7 @@ class SignalGenerator:
         if addr:
             LOGGER.info('Connecting %s.', addr)
             resources = visa.ResourceManager()
-            self._connection = resources.open_resource(addr, timeout=50000, chunk_size = 24*1024*1024)
+            self._connection = resources.open_resource(addr, timeout=50000, chunk_size=24*1024*1024)
         else:
             LOGGER.info('Signal generator in dry-run mode!')
             self._connection = None

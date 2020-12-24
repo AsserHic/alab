@@ -50,16 +50,21 @@ def _to_csv(data: pandas.Series, filename: str):
     df.to_csv(filename, index=False)
 
 
-def run(args: argparse.Namespace):
-    filename = 'drawing.svg'
+def populate_cli_parser(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument('--file',
+                        default='drawing.svg',
+                        type=str,
+                        help='Name of the input SVG file')
 
-    xml = ET.parse(filename)
+
+def run(args: argparse.Namespace):
+    xml = ET.parse(args.file)
     root = xml.getroot()
     df = None
     for item in root.iter('{http://www.w3.org/2000/svg}path'):
         if df:
             LOGGER.warn("%s contains more than one path! Using the first one.",
-                        filename)
+                        args.file)
             break
         df = path_to_df(parse_path(item.attrib['d']))
 
@@ -67,6 +72,6 @@ def run(args: argparse.Namespace):
         LOGGER.info('Rendering XY-graph to the display.')
         show_xy_graph(df)
 
-    file_prefix = filename.split('.')[0]
+    file_prefix = args.file.split('.')[0]
     _to_csv(df['x'], f"{file_prefix}_x.csv")
     _to_csv(df['y'], f"{file_prefix}_y.csv")
