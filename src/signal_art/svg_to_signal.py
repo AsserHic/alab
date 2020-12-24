@@ -1,10 +1,10 @@
 import argparse
 import logging
+import xml.etree.ElementTree as ET
 
 import numpy
 import pandas
 from svg.path import parse_path, Path
-import xml.etree.ElementTree as ET
 
 from .render_signal import show_xy_graph
 
@@ -18,20 +18,20 @@ def path_to_df(path: Path):
     y = []
     for step in path:
         if step.length() == 0:
-            next
-        for t in numpy.arange(0.0, 1.0, 0.3):
-            loc = step.point(t)
+            continue
+        for phase in numpy.arange(0.0, 1.0, 0.3):
+            loc = step.point(phase)
             x.append(loc.real)
             y.append(loc.imag)
-    df = pandas.DataFrame({
+    data = pandas.DataFrame({
         'x': x,
         'y': y,
     })
-    df = df.apply(_normalize, axis=0)
-    df.y = 1 - df.y
-    df.drop_duplicates(inplace=True)
-    LOGGER.info('Obtained %s data points in total.', df.shape[0])
-    return df
+    data = data.apply(_normalize, axis=0)
+    data.y = 1 - data.y
+    data.drop_duplicates(inplace=True)
+    LOGGER.info('Obtained %s data points in total.', data.shape[0])
+    return data
 
 
 def _normalize(series):
@@ -40,14 +40,14 @@ def _normalize(series):
     return (series - low) / (high - low)
 
 
-def _to_csv(data: pandas.Series, filename: str):
+def _to_csv(data: pandas.Series, filename: str) -> None:
     LOGGER.info('Writing %s.', filename)
     step = 0.00000001
-    df = pandas.DataFrame({
+    data = pandas.DataFrame({
         'Second': numpy.arange(0.0, step * len(data), step),
         'Volt': data,
     })
-    df.to_csv(filename, index=False)
+    data.to_csv(filename, index=False)
 
 
 def populate_cli_parser(parser: argparse.ArgumentParser) -> None:
@@ -60,18 +60,18 @@ def populate_cli_parser(parser: argparse.ArgumentParser) -> None:
 def run(args: argparse.Namespace):
     xml = ET.parse(args.file)
     root = xml.getroot()
-    df = None
+    data = None
     for item in root.iter('{http://www.w3.org/2000/svg}path'):
-        if df:
-            LOGGER.warn("%s contains more than one path! Using the first one.",
-                        args.file)
+        if data:
+            LOGGER.warning("%s contains more than one path! Using the first one.",
+                           args.file)
             break
-        df = path_to_df(parse_path(item.attrib['d']))
+        data = path_to_df(parse_path(item.attrib['d']))
 
     if not args.dry:
         LOGGER.info('Rendering XY-graph to the display.')
-        show_xy_graph(df)
+        show_xy_graph(data)
 
     file_prefix = args.file.split('.')[0]
-    _to_csv(df['x'], f"{file_prefix}_x.csv")
-    _to_csv(df['y'], f"{file_prefix}_y.csv")
+    _to_csv(data['x'], f"{file_prefix}_x.csv")
+    _to_csv(data['y'], f"{file_prefix}_y.csv")

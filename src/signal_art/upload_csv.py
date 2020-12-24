@@ -12,10 +12,10 @@ LOGGER = logging.getLogger(__file__)
 
 def _read_signal(filename: str):
     LOGGER.info("- %s", filename)
-    df = pandas.read_csv(filename)
+    data = pandas.read_csv(filename)
 
     wave = ''
-    for value in df.Volt:
+    for value in data.Volt:
         value = '{:04x}'.format(int(value * 65536))
         wave += value
     wave = bytearray.fromhex(wave[:-1])

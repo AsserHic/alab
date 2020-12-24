@@ -1,8 +1,9 @@
 import argparse
-import keyboard
 import logging
 import sys
 import time
+
+import keyboard
 
 from awg import SignalGenerator
 
@@ -96,11 +97,11 @@ class Piano:
 
     def _get_channel(self, note: str):
         channel = 0
-        for c, note_active in enumerate(self._channels):
+        for chn, note_active in enumerate(self._channels):
             if note_active == note:
-                return c + 1
+                return chn + 1
             if note_active is None:
-                channel = c
+                channel = chn
         return channel + 1
 
     def play_note(self, note: str):

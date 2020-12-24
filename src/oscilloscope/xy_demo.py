@@ -40,9 +40,9 @@ def _scope_init(addr: str) -> Oscilloscope:
 
 
 def _sine(awg, ratio, offset=0):
-    f = 100000
-    awg.set_frequency(f, 1)
-    awg.set_frequency(f * ratio + offset, 2)
+    freq = 100000
+    awg.set_frequency(freq, 1)
+    awg.set_frequency(freq * ratio + offset, 2)
 
 
 def _move_around(awg,
@@ -54,7 +54,7 @@ def _move_around(awg,
                  cycles: int = 200):
     x = x0
     y = y0
-    for c in range(cycles):
+    for _ in range(cycles):
         if abs(x + xd) > AWG_LEVEL_FULL - border:
             xd *= -1
         if abs(y + yd) > AWG_LEVEL_FULL - border:
