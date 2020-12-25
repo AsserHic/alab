@@ -44,7 +44,7 @@ def _to_csv(data: pandas.Series, filename: str) -> None:
     LOGGER.info('Writing %s.', filename)
     step = 0.00000001
     data = pandas.DataFrame({
-        'Second': numpy.arange(0.0, step * len(data), step),
+        'Second': numpy.arange(0.0, step * len(data), step)[:len(data)],
         'Volt': data,
     })
     data.to_csv(filename, index=False)
@@ -62,7 +62,7 @@ def run(args: argparse.Namespace):
     root = xml.getroot()
     data = None  # type: pandas.DataFrame
     for item in root.iter('{http://www.w3.org/2000/svg}path'):
-        if data:
+        if data is not None:
             LOGGER.warning("%s contains more than one path! Using the first one.",
                            args.file)
             break
