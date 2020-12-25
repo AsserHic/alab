@@ -38,7 +38,9 @@ class SignalGenerator:
         return response
 
     def identify(self):
-        return self.query('*IDN?')
+        if self._connection:
+            return self.query('*IDN?')
+        return 'AWG dry run'
 
     def reset(self):
         self.write('*RST')

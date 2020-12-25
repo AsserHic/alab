@@ -2,7 +2,7 @@ import argparse
 import logging
 import sys
 import time
-from typing import List, Optional
+from typing import List, Optional  # noqa: F401
 
 import keyboard
 
