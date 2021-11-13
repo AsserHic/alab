@@ -143,15 +143,18 @@ class Piano:
             for channel in [1, 2]:
                 self._awg.write(f'C{channel}:HARM HARMSTATE,ON,HARMTYPE,ALL')
             self._harmonics = True
+            time.sleep(2)
         LOGGER.info('Generating randomized harmonics...')
         for order in range(2, 11):
             if random.uniform(0, 1) < 0.7:
                 amp = random.uniform(0, 0.9)
+                phase = random.randrange(0, 360)
             else:
                 amp = 0
+                phase = 0
             for channel in [1, 2]:
-                self._awg.write(f'C{channel}:HARM HARMORDER,{order},HARMAMP,{amp:.2f}')
-            time.sleep(0.7)
+                self._awg.write(f'C{channel}:HARM HARMORDER,{order},HARMAMP,{amp:.2f},HARMPHASE={phase}')
+            time.sleep(1)
         LOGGER.info('   done!')
 
 
