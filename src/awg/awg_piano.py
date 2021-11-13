@@ -1,5 +1,6 @@
 import argparse
 import logging
+import random
 import sys
 import time
 from typing import List, Optional  # noqa: F401
@@ -68,12 +69,20 @@ class Piano:
             self._awg.set_output(channel, True)
         self._octave = 4
         self._wave_index = 0
+        self._harmonics = False
         self._channels = [None, None]  # type: List[Optional[str]]
         self._a4 = a4_hz
 
     def next_wave(self, direction: bool = True):
         incr = 1 if direction else -1
-        self._wave_index = (self._wave_index + incr) % len(WAVE_FORMS)
+        self._update_waveform((self._wave_index + incr) % len(WAVE_FORMS))
+
+    def _update_waveform(self, index: int):
+        if self._harmonics:
+            for channel in [1, 2]:
+                self._awg.write(f'C{channel}:HARM HARMSTATE,OFF')
+            self._harmonics = False
+        self._wave_index = index
         for channel in [1, 2]:
             self._awg.set_waveform(channel, WAVE_FORMS[self._wave_index])
 
@@ -128,6 +137,23 @@ class Piano:
         n = NOTE_OFFSET[note] + (octave - 4) * 12
         return round(self._a4 * 1.059463094359 ** n, 2)
 
+    def random_harmonics(self):
+        if not self._harmonics:
+            self._update_waveform(0)
+            for channel in [1, 2]:
+                self._awg.write(f'C{channel}:HARM HARMSTATE,ON,HARMTYPE,ALL')
+            self._harmonics = True
+        LOGGER.info('Generating randomized harmonics...')
+        for order in range(2, 11):
+            if random.uniform(0, 1) < 0.7:
+                amp = random.uniform(0, 0.9)
+            else:
+                amp = 0
+            for channel in [1, 2]:
+                self._awg.write(f'C{channel}:HARM HARMORDER,{order},HARMAMP,{amp:.2f}')
+            time.sleep(0.7)
+        LOGGER.info('   done!')
+
 
 def _set_octave(piano, key):
     try:
@@ -151,11 +177,12 @@ def run(args: argparse.Namespace):
     for key in map(str, range(0, 10)):
         keyboard.on_press_key(key, lambda event: _set_octave(piano, event.name), suppress=True)
 
+    keyboard.on_press_key('b', lambda event: piano.random_harmonics(), suppress=True)
     keyboard.on_press_key('c', lambda event: _stop(piano), suppress=True)
     keyboard.on_press_key('n', lambda event: piano.next_wave(False), suppress=True)
     keyboard.on_press_key('m', lambda event: piano.next_wave(True), suppress=True)
 
-    LOGGER.info('Keys: c = exit, n,m = select waveform, 0-9 = octave')
+    LOGGER.info('Keys: c = exit, b=harmonics, n,m = select waveform, 0-9 = octave')
     LOGGER.info(", ".join([f"{key}={note}" for key, note in NOTE_KEYS.items()]))
 
     while piano.is_alive():
