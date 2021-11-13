@@ -155,6 +155,7 @@ class Piano:
             for channel in [1, 2]:
                 self._awg.write(f'C{channel}:HARM HARMORDER,{order},HARMAMP,{amp:.2f},HARMPHASE={phase}')
             time.sleep(1)
+        time.sleep(1)
         LOGGER.info('   done!')
 
 
@@ -185,7 +186,7 @@ def run(args: argparse.Namespace):
     keyboard.on_press_key('n', lambda event: piano.next_wave(False), suppress=True)
     keyboard.on_press_key('m', lambda event: piano.next_wave(True), suppress=True)
 
-    LOGGER.info('Keys: c = exit, b=harmonics, n,m = select waveform, 0-9 = octave')
+    LOGGER.info('Keys: c = exit, b = harmonics, n,m = select waveform, 0-9 = octave')
     LOGGER.info(", ".join([f"{key}={note}" for key, note in NOTE_KEYS.items()]))
 
     while piano.is_alive():
