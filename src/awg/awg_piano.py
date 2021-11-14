@@ -62,14 +62,15 @@ WAVE_FORMS = [
 
 class Piano:
 
-    def __init__(self, addr, a4_hz: float = 440):
+    def __init__(self, addr, a4_hz: float = 440, amplitude: float = 0.9):
         self._awg = SignalGenerator(addr)
         for channel in [1, 2]:
-            self._awg.write(f"C{channel}:BASIC_WAVE AMP,0.9,FRQ,0HZ")
+            self._awg.write(f"C{channel}:BASIC_WAVE AMP,{amplitude},FRQ,0HZ")
             self._awg.set_output(channel, True)
         self._octave = 4
         self._wave_index = 0
         self._harmonics = False
+        self._amplitude = amplitude
         self._channels = [None, None]  # type: List[Optional[str]]
         self._a4 = a4_hz
 
@@ -145,16 +146,17 @@ class Piano:
             self._harmonics = True
             time.sleep(2)
         LOGGER.info('Generating randomized harmonics...')
-        for order in range(2, 11):
+        for order in range(2, 10):
             if random.uniform(0, 1) < 0.7:
-                amp = random.uniform(0, 0.9)
+                amp = random.uniform(0, self._amplitude)
                 phase = random.randrange(0, 360)
             else:
                 amp = 0
                 phase = 0
+            LOGGER.info('   order %s: %s', order, 'muted' if amp < 0.001 else 'set')
             for channel in [1, 2]:
-                self._awg.write(f'C{channel}:HARM HARMORDER,{order},HARMAMP,{amp:.2f},HARMPHASE={phase}')
-            time.sleep(1)
+                self._awg.write(f'C{channel}:HARM HARMORDER,{order},HARMAMP,{amp:.2f},HARMPHASE,{phase}')
+                time.sleep(1)
         time.sleep(1)
         LOGGER.info('   done!')
 
