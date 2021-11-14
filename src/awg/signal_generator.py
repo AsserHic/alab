@@ -53,7 +53,7 @@ class SignalGenerator:
         _validate_channel(channel)
         self.write(f"C{channel}:BASIC_WAVE OFST,{round(volts, 3)}")
 
-    def set_output(self, channel, status):
+    def set_output(self, channel, status: bool):
         _validate_channel(channel)
         self.write(f"C{channel}:OUTPUT {'ON' if status else 'OFF'}")
 
