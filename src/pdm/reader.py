@@ -23,12 +23,12 @@ def run(args: argparse.Namespace):
             if 'error' in new_value:
                 error = new_value['error']
                 if error == 'overflow':
-                    print(_format_for_human(error))
+                    print(_format_for_human(error), flush=True)
                 else:
                     LOGGER.error(new_value['error'])
                     break
             else:
-                print(_format_for_human(new_value))
+                print(_format_for_human(new_value), flush=True)
             value = new_value
 
     multimeter.close()
